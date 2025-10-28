@@ -1,0 +1,2 @@
+(library
+ (name random_test))

@@ -1,0 +1,4 @@
+(executable
+ (public_name random-test)
+ (name main)
+ (libraries random_test))

@@ -1,14 +1,14 @@
-
 type password_digits = int*int*int
+type digit_input_type = Mystery of int | Provided of password_digits (* Either Mystery w/ length, or provided *)
 
 let all_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 let all_digits = "1234567890"
 let all_punc = "!@#$%^&*()-_=+{[\\}]|:;\"'?/>.<,~`'}"
 
-let password_digit_allocation length ?(letters=0) ?(digits=0) ?(punc=0) () =
-    let n_letters = if letters <> 0 then letters else Random.int_in_range ~min:1 ~max:(length-2) in
-    let n_digits = if digits <> 0 then digits else Random.int_in_range ~min:1 ~max:(length-n_letters-1) in
-    let n_punc = if digits <> 0 then punc else length - n_digits - n_letters in
+let password_digit_allocation length ?(letters=(-1)) ?(digits=(-1)) ?(punc=(-1)) () =
+    let n_letters = if letters <> -1 then letters else Random.int_in_range ~min:0 ~max:(length) in
+    let n_digits = if digits <> -1 then digits else Random.int_in_range ~min:0 ~max:(length-n_letters) in
+    let n_punc = if digits <> -1 then punc else length - n_digits - n_letters in
         Printf.printf "Length: %d = %d (Letters) + %d (Numbers) + %d (Punctuation)\n" length n_letters n_digits n_punc;
         (n_letters, n_digits, n_punc)
 
@@ -31,24 +31,34 @@ let generate_password_letters ((l, d, p): password_digits) =
         Printf.printf "Password: %s\n\n" pw;
         pw
 
-let rec compare_loop (pw: string) (digits: password_digits) attempt =
+let rec compare_loop (pw: string) (digit_input: digit_input_type) attempt =
+    let digits = match digit_input with
+        | Mystery length -> password_digit_allocation length ()
+        | Provided d -> d in
     Printf.printf "Attempt %d\n" attempt;
     let new_pw = generate_password_letters digits in
-        if new_pw = pw then (Sys.time(), attempt) else compare_loop pw digits (attempt+1)
+        if new_pw = pw then (Sys.time(), attempt) else compare_loop pw digit_input (attempt+1)
 
+let read_int_input msg = print_string msg; read_int ()
 let () = 
     Random.self_init ();
-    print_endline "____ PW ____";
+    print_endline "---- INPUT (-1 if you want to randomize) ----";
+    (* Get the parameters from the user *)
+    let length = read_int_input "Total Length: " in 
+    let n_letters = read_int_input "Number of Letters: " in 
+    let n_digits = read_int_input "Number of Digits: " in 
+    let n_punc = read_int_input "Number of Special Characters: " in
     (* Generate the first PW *)
-    let allocation = password_digit_allocation 10 () in
+        print_endline "____ Password ____";
+    let allocation = password_digit_allocation length ~letters:n_letters ~digits:n_digits ~punc:n_punc () in
     let pw = generate_password_letters allocation in
-        print_endline pw;
+    (* Hard Mode *)
+    let show_allocation = read_int_input "Show Allocation to Program? (1/0): " in
+    let given_digits = if show_allocation <> 0 then Provided allocation else Mystery length in
     (* Now Compare *)
     let t = Sys.time() in
-    let (t1, attempt) = compare_loop pw allocation 1 in
-        Printf.printf "Time Taken: %.10f seconds and %d attempts" (t1 -. t) attempt
-
-
+    let (t1, attempt) = compare_loop pw given_digits 1 in
+        Printf.printf "Time Taken: %.8f seconds and %d attempts\n" (t1 -. t) attempt
 
 
 

@@ -1,0 +1,26 @@
+(lang dune 3.20)
+
+(name devicoin)
+
+(generate_opam_files true)
+
+(source
+ (github Smilin-Dominator/ocaml-learning-and-testing))
+
+(authors "Devisha Padmaperuma <devisha.padmaperuma@gmail.com>")
+
+(maintainers "Devisha Padmaperuma <devisha.padmaperuma@gmail.com>")
+
+(license LICENSE)
+
+(documentation https://url/to/documentation)
+
+(package
+ (name devicoin)
+ (synopsis "An OCaml-based Blockchain")
+ (description "A blockchain called Devicoin that I wanted to make for fun")
+ (depends ocaml)
+ (tags
+  ("blockchain" "cryptocurrenct" devicoin)))
+
+; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html

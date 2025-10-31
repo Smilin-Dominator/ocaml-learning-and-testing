@@ -1,0 +1,5 @@
+(executable
+ (public_name devicoin)
+ (name main)
+ (flags (:standard -w -69))         ; disable warning 69
+ (libraries devicoin_lib dream))
